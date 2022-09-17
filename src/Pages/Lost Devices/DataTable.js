@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import FetchUserApi from '../../Redux/AsyncThunkApi/FetchUserApi';
 import { useEffect, useState } from 'react'
 import Loading from './../../Components/Loading'
+import FetchLostRepotsApi from '../../Redux/AsyncThunkApi/FetchLostRepotsApi';
 function createData(id, name, email, governorate, district, neighporhood, phone) {
     return {
         id,
@@ -83,22 +84,28 @@ const headCells = [
         label: 'User ID '
     },
     {
-        id: 'name',
+        id: 'contect_number',
         numeric: false,
         disablePadding: true,
-        label: 'user Name',
+        label: 'user contect number',
     },
     {
-        id: 'email',
+        id: 'country',
         numeric: false,
         disablePadding: true,
-        label: 'user Emial',
+        label: 'user Country',
     },
     {
-        id: 'governorate',
+        id: 'date',
         numeric: false,
         disablePadding: true,
-        label: 'user governorate'
+        label: 'Lost Date'
+    },
+    {
+        id: 'device_name',
+        numeric: false,
+        disablePadding: true,
+        label: 'Device name '
     },
     {
         id: 'district',
@@ -107,17 +114,36 @@ const headCells = [
         label: 'user district'
     },
     {
-        id: 'neighporhood',
+        id: 'governorate',
         numeric: false,
         disablePadding: true,
-        label: 'user neighporhood'
+        label: 'user governorate'
     },
     {
-        id: 'phone',
+        id: 'owner_id',
         numeric: false,
         disablePadding: true,
-        label: 'user phone'
+        label: 'owner id '
+    },
+    {
+        id: 'owner_name',
+        numeric: false,
+        disablePadding: true,
+        label: 'owner  name'
+    },
+    {
+        id: 'place',
+        numeric: false,
+        disablePadding: true,
+        label: 'losting place'
+    },
+    {
+        id: 'reward',
+        numeric: true,
+        disablePadding: true,
+        label: 'reward'
     }
+
 ];
 
 function EnhancedTableHead(props) {
@@ -206,7 +232,7 @@ const EnhancedTableToolbar = (props) => {
                     id="tableTitle"
                     component="div"
                 >
-                    Users
+                    Losting Report Device
                 </Typography>
             )}
 
@@ -246,7 +272,7 @@ export default function EnhancedTable() {
     }
     const [windowSize, setWindowSize] = useState(getWindowSize());
 
-    const rows = useSelector(state => state.users.users)
+    const rows = useSelector(state => state.lost_reports.lost_reports)
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -256,7 +282,7 @@ export default function EnhancedTable() {
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(true)
     useEffect(() => {
-        dispatch(FetchUserApi())
+        dispatch(FetchLostRepotsApi())
             .then(() => {
                 setIsLoading(false)
 
@@ -389,14 +415,19 @@ export default function EnhancedTable() {
                                                             scope="row"
                                                             padding="none"
                                                         >
-                                                            {row.name}
+                                                            {row.contect_number}
                                                         </TableCell>
 
-                                                        <TableCell align="center">{row.email}</TableCell>
-                                                        <TableCell align="center">{row.governorate}</TableCell>
+                                                        <TableCell align="center">{row.country}</TableCell>
+                                                        <TableCell align="center">{row.date}</TableCell>
+                                                        <TableCell align="center">{row.device_name}</TableCell>
                                                         <TableCell align="center">{row.district}</TableCell>
-                                                        <TableCell align="center">{row.neighporhood}</TableCell>
-                                                        <TableCell align="center">{row.phone}</TableCell>
+                                                        <TableCell align="center">{row.governorate}</TableCell>
+                                                        <TableCell align="center">{row.owner_id}</TableCell>
+                                                        <TableCell align="center">{row.owner_name}</TableCell>
+                                                        <TableCell align="center">{row.place}</TableCell>
+                                                        <TableCell align="center">{row.reward}</TableCell>
+                                                        {/* <TableCell align="center">{row.phone}</TableCell> */}
                                                     </TableRow>
                                                 );
                                             })}
@@ -431,8 +462,8 @@ export default function EnhancedTable() {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        height: windowSize.innerHeight-100,
-                        
+                        height: windowSize.innerHeight - 100,
+
                     }}>
                         <Loading />
                     </Box>
