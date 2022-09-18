@@ -1,30 +1,31 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { useDispatch, useSelector } from 'react-redux'
 import FetchUserApi from '../../Redux/AsyncThunkApi/FetchUserApi';
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Loading from './../../Components/Loading'
+import {
+    Collapse, TableSortLabel,
+    TablePagination, TableRow,
+    TableContainer, TableHead,
+    TableCell, TableBody,
+    Table, Box, Switch,
+    FormControlLabel,
+    Tooltip, IconButton,
+    Checkbox, Paper,
+    Typography, Toolbar
+} from '@mui/material';
+
+import {
+    KeyboardArrowDown as KeyboardArrowDownIcon,
+    KeyboardArrowUp as KeyboardArrowUpIcon
+} from '@mui/icons-material/';
+
+import Swal from 'sweetalert2'
 function createData(id, name, email, governorate, district, neighporhood, phone) {
     return {
         id,
@@ -130,6 +131,7 @@ function EnhancedTableHead(props) {
     return (
         <TableHead>
             <TableRow>
+                <TableCell />
                 <TableCell padding="checkbox">
                     <Checkbox
                         color="primary"
@@ -231,6 +233,114 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
+const Row = (props) => {
+    const { row, index, isItemSelected, labelId, handleClick } = props
+    const [open, setOpen] = useState(false)
+    const [deviceData, setDeviceData] = useState([])
+    const data = []
+    
+    useEffect(() => {
+        row.deviceInfo.then((d) => {
+            d.forEach(element => {
+                data.push(element)
+            });
+        })
+        setDeviceData(data)
+        console.log("the row id " + row.id)
+    }, [])
+
+    return (
+        <React.Fragment>
+            <TableRow
+                hover
+                key={row.id}
+                selected={isItemSelected}
+            >
+                <TableCell>
+                    <IconButton
+                        aria-label="expand row"
+                        size="small"
+                        onClick={() => setOpen(!open)}
+                    >
+                        {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    </IconButton>
+                </TableCell>
+                <TableCell padding="checkbox"
+                    onClick={(event) => handleClick(event, row.id)}
+                >
+                    <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        inputProps={{
+                            'aria-labelledby': labelId,
+                        }}
+                    />
+                </TableCell>
+                <TableCell align="left">{index}</TableCell>
+                <TableCell
+                    component="th"
+                    id={labelId}
+                    scope="row"
+                    padding="none"
+                >
+                    {row.id}
+                </TableCell>
+                <TableCell
+                    component="th"
+                    id={labelId}
+                    scope="row"
+                    padding="none"
+                >
+                    {row.name}
+                </TableCell>
+
+                <TableCell align="center">{row.email}</TableCell>
+                <TableCell align="center">{row.governorate}</TableCell>
+                <TableCell align="center">{row.district}</TableCell>
+                <TableCell align="center">{row.neighporhood}</TableCell>
+                <TableCell align="center">{row.phone}</TableCell>
+
+            </TableRow>
+            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
+                <Collapse in={open} timeout="auto" unmountOnExit>
+                    <Box sx={{ margin: 1 }}>
+                        <Typography variant="h6" gutterBottom component="div">
+                            Devices
+                        </Typography>
+                        <Table size="small" >
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>IMEI</TableCell>
+                                    <TableCell>Model</TableCell>
+                                    <TableCell align="right">Name</TableCell>
+                                </TableRow>
+                            </TableHead>
+
+                            <TableBody>
+                                {
+                                    deviceData && deviceData.map((item, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                {item.imei}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.model}
+                                            </TableCell>
+                                            <TableCell>
+                                                {item.name}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
+                            </TableBody>
+                        </Table>
+                    </Box>
+                </Collapse>
+            </TableCell>
+        </React.Fragment>
+    )
+}
+
 export default function EnhancedTable() {
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
@@ -256,6 +366,7 @@ export default function EnhancedTable() {
     const dispatch = useDispatch()
     const [isLoading, setIsLoading] = useState(true)
     useEffect(() => {
+       
         dispatch(FetchUserApi())
             .then(() => {
                 setIsLoading(false)
@@ -274,23 +385,26 @@ export default function EnhancedTable() {
         return () => {
             window.removeEventListener('resize', handleWindowResize);
         };
+
+        
     }, [])
+
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.map((n) => n.name);
+            const newSelected = rows.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
         setSelected([]);
     };
 
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
+    const handleClick = (event, id) => {
+        const selectedIndex = selected.indexOf(id);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -304,6 +418,15 @@ export default function EnhancedTable() {
 
         setSelected(newSelected);
     };
+
+    const ShowSwl = (id) => {
+        Swal.fire(
+            'The Internet?',
+            'That thing is still around?',
+            'info'
+        )
+
+    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -352,52 +475,14 @@ export default function EnhancedTable() {
                                         {stableSort(rows, getComparator(order, orderBy))
                                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                             .map((row, index) => {
-                                                const isItemSelected = isSelected(row.name);
+                                                const isItemSelected = isSelected(row.id);
                                                 const labelId = `enhanced-table-checkbox-${index}`;
-
+                                                
                                                 return (
-                                                    <TableRow
-                                                        hover
-                                                        onClick={(event) => handleClick(event, row.name)}
-                                                        role="checkbox"
-                                                        aria-checked={isItemSelected}
-                                                        tabIndex={-1}
-                                                        key={row.id}
-                                                        selected={isItemSelected}
-                                                    >
-                                                        <TableCell padding="checkbox">
-                                                            <Checkbox
-                                                                color="primary"
-                                                                checked={isItemSelected}
-                                                                inputProps={{
-                                                                    'aria-labelledby': labelId,
-                                                                }}
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell align="left">{index}</TableCell>
-                                                        <TableCell
-                                                            component="th"
-                                                            id={labelId}
-                                                            scope="row"
-                                                            padding="none"
-                                                        >
-                                                            {row.id}
-                                                        </TableCell>
-                                                        <TableCell
-                                                            component="th"
-                                                            id={labelId}
-                                                            scope="row"
-                                                            padding="none"
-                                                        >
-                                                            {row.name}
-                                                        </TableCell>
-
-                                                        <TableCell align="center">{row.email}</TableCell>
-                                                        <TableCell align="center">{row.governorate}</TableCell>
-                                                        <TableCell align="center">{row.district}</TableCell>
-                                                        <TableCell align="center">{row.neighporhood}</TableCell>
-                                                        <TableCell align="center">{row.phone}</TableCell>
-                                                    </TableRow>
+                                                    <Row row={row} index={index} labelId={labelId}
+                                                        isItemSelected={isItemSelected}
+                                                        handleClick={handleClick}
+                                                    />
                                                 );
                                             })}
                                         {emptyRows > 0 && (
@@ -431,8 +516,8 @@ export default function EnhancedTable() {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        height: windowSize.innerHeight-100,
-                        
+                        height: windowSize.innerHeight - 100,
+
                     }}>
                         <Loading />
                     </Box>

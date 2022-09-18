@@ -3,7 +3,7 @@ import UpdateVersionApi from "../AsyncThunkApi/UpdateVersionApi";
 const initialState = {
     versionInfo: null
 }
-const lost_repotsSlice = createSlice({
+const versionInfoSlice = createSlice({
     name: 'users',
     initialState,
     reducers: {
@@ -15,7 +15,7 @@ const lost_repotsSlice = createSlice({
         [UpdateVersionApi.fulfilled]: (state, action) => {
             console.log('UpdateVersionApi.fulfilled')
             state.versionInfo = action.payload
-            console.log(state.users)
+            console.log(state.versionInfo)
         },
         [UpdateVersionApi.rejected]: (state, action) => {
             console.log('UpdateVersionApi.rejected')
@@ -25,4 +25,4 @@ const lost_repotsSlice = createSlice({
         }
     }
 })
-export default lost_repotsSlice.reducer
+export default versionInfoSlice.reducer

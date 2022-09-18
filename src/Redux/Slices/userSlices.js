@@ -15,7 +15,17 @@ const userSlcie = createSlice({
         [FetchUserApi.fulfilled]: (state, action) => {
             console.log('FetchUserApi.fulfilled')
             state.users = action.payload
-            console.log(state.users)
+            // console.log(state.users.deviceInfo)
+            // state.users.forEach((element) => {
+            //     // console.log(element.deviceInfo)
+            //     // console.log(typeof (element.deviceInfo))
+            //     element.devicey.then((d) => {
+            //         element.deviceInfo = d
+                    
+            //     })
+            // })
+
+            // console.log(state.users)
         },
         [FetchUserApi.rejected]: (state, action) => {
             console.log('FetchUserApi.rejected')

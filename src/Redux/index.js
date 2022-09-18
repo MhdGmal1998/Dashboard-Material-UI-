@@ -9,6 +9,6 @@ export default configureStore({
         users: userSlices,
         design: designSlice,
         lost_reports: lost_reportSlice,
-        versoin: versoin
+        version: versoin
     }
 })
