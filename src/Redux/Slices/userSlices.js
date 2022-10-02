@@ -15,6 +15,8 @@ const userSlcie = createSlice({
         [FetchUserApi.fulfilled]: (state, action) => {
             console.log('FetchUserApi.fulfilled')
             state.users = action.payload
+
+            // alert(action.payload.length)
             // console.log(state.users.deviceInfo)
             // state.users.forEach((element) => {
             //     // console.log(element.deviceInfo)
